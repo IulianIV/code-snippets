@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+<style>
+  body {
+    padding-left: 5px;
+  }
+
+  select, #split_by {
+    border-radius: 20px !important;
+  }
+
+  select#sheet_name {
+    font-size: medium;
+    height: 35px;
+  }
+
+  label {
+    font-weight: bold;
+    font-size: 16px;
+    line-height: 35px;
+  }
+
+  p.notice {
+    font-weight: 600;
+  }
+
+  p.warning {
+    color: red;
+    font-weight: 600;
+  }
+
+  p.normal {
+    font-weight: bold;
+    font-size: 16px;
+    line-height: 35px;
+  }
+
+  #extract_values,
+  #extract_split_values,
+  #extract_values_by_column {
+    margin-bottom: 5px;
+  }
+
+  button.action {
+    font-size: 16px;
+    display: none;
+    border-radius: 5px;
+  }
+
+  hr.separator {
+    width: 50%;
+  }
+
+  .tooltip {
+    position: relative;
+    display: inline-block;
+    /* If you want dots under the hoverable text */
+  }
+
+  .tooltip .tooltiptext {
+    visibility: hidden;
+    background-color: gray;
+    color: #fff;
+    text-align: center;
+    padding: 10px 0;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 1;
+    width: 150px;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -65px;
+    /* Use half of the width (120/2 = 60), to center the tooltip */
+  }
+
+  .tooltip:hover .tooltiptext {
+    visibility: visible;
+  }
+</style>
+
+<head>
+  <base target="_top">
+  <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+</head>
+
+<body>
+  <label for="sheet_name">Alege sheet-ul de impartit</label><br>
+  <select name="sheets" id="sheet_name"></select><br>
+  <hr class="separator">
+  <label for="split_by">La cate randuri vrei sa fie impartit?</label>
+  <input type="text" id="split_by" name="sheet_splitter_setting" placeholder="ex.: 15"><br>
+
+  <p class="notice">In urma impartirii se va genera un numar fix de sheet-uri. Stergem sheet-urile nou create?</p>
+
+
+  <input type="checkbox" id="delete_sheets" name="sheet_splitter_setting" checked>
+  <label for="delete_sheets">Da</label>
+  <p class="warning"><strong style="font-weight: 800;">Atentie!</strong> Daca numarul la care se imparte fisierul este
+    mic se pot genera zeci de fisiere care pot
+    ingreuna functionalitatea</p>
+  <div class="tooltip">
+    <button class="action" onclick='sendSplitSettings()' id="split_sheet" style="display: block;">Imparte Sheet-ul</button>
+    <span class="tooltiptext">Imparte sheet-ul selectat la cifra trecuta in camp.</span>
+  </div>
+
+  <hr class="separator">
+  <input type="checkbox" id="filter_by" name="sheet_splitter_setting">
+  <label for="filter_by">Afiseaza coloanele si valorile</label><br>
+
+  <label for="filter_column" style="display: none;" id="filter_column_label">Selecteaza Coloana</label><br>
+  <select name="sheets" id="filter_column" style="display: none;"></select><br>
+
+  <label for="filter_values" style="display: none;" id="filter_values_label">Selecteaza Valoarea</label><br>
+  <select name="sheets" id="filter_values" style="display: none;"></select><br><br>
+
+
+  <div class="tooltip">
+    <button class="action" onclick='extractFromSheet()' id="extract_values">Extractie dupa Valori</button>
+    <span class="tooltiptext">Extrage din Sheet toate campurile ce contin Valoarea selectata</span>
+  </div>
+  <div class="tooltip">
+    <button class="action" onclick='extractFromSheetAndSplit()' id="extract_split_values">Extrage si Imparte</button>
+    <span class="tooltiptext">Extrage din Sheet valorile selectate apoi Imparte dupa numarul dat</span>
+  </div>
+  <div class="tooltip">
+    <button class="action" onclick='extractByColumnValues()' id="extract_values_by_column">Extrage dupa Coloana Selectata</button>
+    <span class="tooltiptext">Imparte Sheet-ul selectat dupa valorile regasite in Coloana selectata</span>
+  </div>
+
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+  <script
+    src="https://cdn.rawgit.com/mdehoog/Semantic-UI/6e6d051d47b598ebab05857545f242caf2b4b48c/dist/semantic.min.js">
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.8/semantic.min.js"></script>
+  <script>
+    $(document).ready(function() {
+
+          create_sheet_list();
+
+          function sheet_options(resp) {
+               $("#sheet_name").empty();
+               $(resp).each(function(i, el) {
+                   $("#sheet_name").append('<option value="' + el[0] + '">' + el[0] + '</option>')
+                  
+               });
+           };
+
+          function column_options(resp) {
+            $("#filter_column").empty();
+            $(resp).each(function(i, el) {
+              $("#filter_column").append('<option value="' + el + '">' + el + '</option>')
+            })
+          };
+
+          function column_values(resp) {
+            $("#filter_values").empty();
+            $(resp).each(function(i, el) {
+              $("#filter_values").append('<option value="' + el + '">' + el + '</option>');
+            });
+          };
+
+           function create_sheet_list() {
+              google.script.run.withSuccessHandler(sheet_options).sheetNames();            
+           };
+
+           function create_column_list(sheet){
+
+             google.script.run.withSuccessHandler(column_options).getHeaders(sheet);
+
+           };
+
+           function create_column_values(sheet, column_name) {
+
+             google.script.run.withSuccessHandler(column_values).getColumnValues(sheet, column_name)
+
+           };
+
+           //set initial state of filter_by checkbox.
+            $('#filter_by').val(this.checked);
+            
+            $('#filter_by').change(function() {
+                if(this.checked) {
+                    $("#filter_column").show();
+                    $("#filter_column_label").show();
+                    $("#extract_values").show();
+                    $("#extract_split_values").show();
+                    $("#extract_values_by_column").show();
+
+                    
+
+                    var sheet_name = document.getElementById("sheet_name").value;
+                    create_column_list(sheet_name);
+
+
+                    $("#filter_column").change(function() {
+                      selected_column = document.getElementById("filter_column").value;
+
+                      create_column_values(sheet_name, selected_column);
+
+                      $("#filter_values").show();
+                      $("#filter_values_label").show();
+
+                    });
+                    
+                } else {
+                  $("#filter_column").hide();
+                  $("#filter_column_label").hide();
+                  $("#filter_column").empty();
+
+                  $("#filter_values").hide();
+                  $("#filter_values_label").hide();
+                  $("#extract_values").hide();
+                  $("#extract_split_values").hide();
+                  $("#extract_values_by_column").hide();
+                }
+            });
+            
+            
+           
+    });
+           
+    function sendSplitSettings(){
+
+      //Get the value of the input field 
+      var sheet_name = document.getElementById("sheet_name").value;
+      var split_by = document.getElementById("split_by").value;
+      var delete_sheets = document.getElementById("delete_sheets").checked;
+      var filter_truthy = document.getElementById("filter_by").checked;
+
+      if (filter_truthy) {
+        var chosen_column = document.getElementById("filter_column").value;
+        var chosen_value = document.getElementById("filter_values").value;
+      } else {
+        var chosen_column, chosen_value = '';
+      }
+
+      console.log('Data sent:' + '\n\tName of the sheet: ' + sheet_name + '\n\tSplit value: ' + split_by + '\n\tDelete sheets state: ' +delete_sheets + '\n\tChosen column: ' + chosen_column + '\n\tChosen value: ' + chosen_value)
+
+      // google.script.run.SplitSheet(sheet_name, split_by, delete_sheets)
+      
+    }
+
+    function extractFromSheet() {
+
+      var sheet_name = document.getElementById("sheet_name").value;
+      var delete_sheets = document.getElementById("delete_sheets").checked;
+      var chosen_column = document.getElementById("filter_column").value;
+      var chosen_value = document.getElementById("filter_values").value;
+
+      console.log('Data sent:' + '\n\tName of the sheet: ' + sheet_name + '\n\tColumn value: ' + chosen_column + '\n\tValue: ' + chosen_value + '\n\tDelete: ' + delete_sheets)
+
+      google.script.run.ExtractFromSheet(sheet_name, delete_sheets, chosen_column, chosen_value)
+
+
+    }
+
+    function extractFromSheetAndSplit() {
+
+      var sheet_name = document.getElementById("sheet_name").value;
+      var split_by = document.getElementById("split_by").value;
+      var delete_sheets = document.getElementById("delete_sheets").checked;
+      var chosen_column = document.getElementById("filter_column").value;
+      var chosen_value = document.getElementById("filter_values").value;
+
+      console.log('Data sent:'+ '\n\tSplit by: ' + split_by + '\n\tName of the sheet: ' + sheet_name + '\n\tColumn value: ' + chosen_column + '\n\tValue: ' + chosen_value + '\n\tDelete: ' + delete_sheets)
+
+      google.script.run.SplitExtractFromSheet(sheet_name, split_by, delete_sheets, chosen_column, chosen_value)
+
+    }
+
+    function extractByColumnValues() {
+
+      var sheet_name = document.getElementById("sheet_name").value;
+      var delete_sheets = document.getElementById("delete_sheets").checked;
+      var chosen_column = document.getElementById("filter_column").value;
+
+      console.log('Data sent:'+ '\n\tName of the sheet: ' + sheet_name + '\n\tColumn value: ' + chosen_column + '\n\tDelete: ' + delete_sheets)
+
+      google.script.run.ExtractByColumn(sheet_name, delete_sheets, chosen_column)
+
+    }
+  </script>
+</body>
+</html>

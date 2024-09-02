@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<style>
+	.container,
+	.buttons,
+	.title {
+		margin: 5px;
+		width: 95%;
+		padding: 2px;
+		font-size: 13px;
+	}
+
+	.title {
+		display: none
+	}
+
+	.title:before {
+		content: "+";
+		width: 15px;
+		display: inline-block;
+	}
+
+	.title.open:before {
+		content: "-";
+		width: 15px;
+		display: inline-block;
+	}
+
+	.container {
+		display: none;
+	}
+
+	.container.open {
+		display: block;
+	}
+</style>
+
+<head>
+	<base target="_top">
+	<link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+</head>
+
+<body>
+	<!-- Change titles of the lists if needed. To add an extra list, just create a new 'container' and also add it in the createList function -->
+	<p class="title"><b><u>destination_use</u></b></p>
+	<div class="container" id="destination_use"></div>
+	<p class="title"><b><u>color</u></b></p>
+	<div class="container" id="color"></div>
+	<p class="title"><b><u>smell</u></b></p>
+	<div class="container" id="smell"></div>
+	<p class="title"><b><u>mode_action</u></b></p>
+	<div class="container" id="mode_action"></div>
+	<p class="title"><b><u>application_timming</u></b></p>
+	<div class="container" id="application_timming"></div>
+	<p class="title"><b><u>preventive_treatment</u></b></p>
+	<div class="container" id="preventive_treatment"></div>
+	<p class="title"><b><u>disinfect_against</u></b></p>
+	<div class="container" id="disinfect_against"></div>
+	<p class="title"><b><u>disinfectant_pathogens</u></b></p>
+	<div class="container" id="disinfectant_pathogens"></div>
+	<p class="title"><b><u>weeds_types</u></b></p>
+	<div class="container" id="weeds_types"></div>
+	<p class="title"><b><u>type_apparatus</u></b></p>
+	<div class="container" id="type_apparatus"></div>
+	<p class="title"><b><u>treatment_of</u></b></p>
+	<div class="container" id="treatment_of"></div>
+	<p class="title"><b><u>active_substances</u></b></p>
+	<div class="container" id="active_substances"></div>
+	<p class="title"><b><u>crops_types</u></b></p>
+	<div class="container" id="crops_types"></div>
+	<p class="title"><b><u>crops_diseases</u></b></p>
+	<div class="container" id="crops_diseases"></div>
+	<p class="title"><b><u>crops_pests</u></b></p>
+	<div class="container" id="crops_pests"></div>
+	<p class="title"><b><u>pests</u></b></p>
+	<div class="container" id="pests"></div>
+	<p class="title"><b><u>weeds</u></b></p>
+	<div class="container" id="weeds"></div>
+	<p class="title"><b><u>cleaning_detergent</u></b></p>
+	<div class="container" id="cleaning_detergent"></div>
+	<p class="title"><b><u>application_type</u></b></p>
+	<div class="container" id="application_type"></div>
+	<p class="title"><b><u>seeds_treated_with</u></b></p>
+	<div class="container" id="seeds_treated_with"></div>
+	<p class="title"><b><u>seeds_biological_category</u></b></p>
+	<div class="container" id="seeds_biological_category"></div>
+	<div class="buttons">
+		<p>
+			<button class="action" id="action">Write values to active cell</button>
+		</p>
+		<p>
+			<button class="secondary" id="btn">Rebuild values</button>
+	</div>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+	<script
+		src="https://cdn.rawgit.com/mdehoog/Semantic-UI/6e6d051d47b598ebab05857545f242caf2b4b48c/dist/semantic.min.js">
+	</script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.1.8/semantic.min.js"></script>
+	<script>
+		$(document).ready(function() { 
+			   $(".title").click(function(){
+					$(this).toggleClass('open');
+					$(this).next().toggleClass('open');
+			   })	
+               createList();
+               $(".title").show();
+               var selected = [];
+               $('.ui.checkbox').checkbox();
+               $("#action").click(function() {
+                   $("input:checkbox[name=sel]:checked").each(function() {
+                       selected.push($(this).val());
+                       $(this).prop( "checked", false ); 
+                   });
+                   google.script.run.process(selected)   ////here is the process part that you were looking for that you may need to add a process 2 for the arr('') to combine items
+                   selected.length = 0;
+               });
+               $("#btn").click(function() {
+                   createList();
+               });
+           });
+           function options(resp) {
+               $(resp[1]).empty();
+               $(resp[0]).each(function(i, el) {
+                   $(resp[1]).append('<div class="field"><div class="ui checkbox"><input type="checkbox" name="sel" value="' + el + '"><label>' + el + '</label></div></div>')
+               });
+           }
+           function createList() {
+               //more range can be added to the array, make sure the range corresponds to the proper container
+               $([['B2:B', '#destination_use'], ['C2:C', '#color'], ['D2:D', '#smell'], ['J2:J', '#mode_action'], ['Q2:Q', '#application_timming'], ['R2:R', '#preventive_treatment'], ['U2:U', '#disinfect_against'], ['V2:V', '#disinfectant_pathogens'], ['W2:W', '#weeds_types'], ['Z2:Z', '#type_apparatus'], ['AA2:AA', '#treatment_of'], ['AE2:AE', '#active_substances'], ['AG2:AG', '#crops_types'], ['AH2:AH', '#crops_diseases'], ['AI2:AI', '#crops_pests'], ['AJ2:AJ', '#pests'], ['AK2:AK', '#weeds'], ['AL2:AL', '#cleaning_detergent'], ['F2:F', '#application_type'], ['AS2:AS', '#application_type'], ['AQ2:AQ', '#seeds_biological_category']]).each(function (i, el) {                
+               google.script.run.withSuccessHandler(options).GetOptions(el[0], el[1])
+               })              
+           }
+           $(document).ready(function() {                                                     
+               createList2();                                      
+               $(".title").show();                            
+               var selected = [];
+               $('.ui.checkbox').checkbox();
+               $("#combine").click(function() {
+                   $("input:checkbox[name=sel]:checked").each(function() {
+                       selected.push($(this).val());
+                       $(this).prop( "checked", false ); 
+                   });
+                   google.script.run.process2(selected)   
+                   selected.length = 0;
+               });
+               $("#btn").click(function() {
+                   createList();
+               });
+           });
+            function options2(resp) {  
+               $(resp[1]).empty();
+               $(resp[0]).each(function(i, el) {
+                   $(resp[1]).append('<div class="field"><div class="ui checkbox"><input type="checkbox" name="sel" value="' + el + '"><label>' + el + '</label></div></div>')
+               });
+           }
+           function createList2() {               
+               //more range can be added to the array, make sure the range corresponds to the proper container
+               $([['B2:B', '#destination_use'], ['C2:C', '#color'], ['D2:D', '#smell'], ['J2:J', '#mode_action'], ['Q2:Q', '#application_timming'], ['R2:R', '#preventive_treatment'], ['U2:U', '#disinfect_against'], ['V2:V', '#disinfectant_pathogens'], ['W2:W', '#weeds_types'], ['Z2:Z', '#type_apparatus'], ['AA2:AA', '#treatment_of'], ['AE2:AE', '#active_substances'], ['AG2:AG', '#crops_types'], ['AH2:AH', '#crops_diseases'], ['AI2:AI', '#crops_pests'], ['AJ2:AJ', '#pests'], ['AK2:AK', '#weeds'], ['AL2:AL', '#cleaning_detergent'], ['F2:F', '#application_type'], ['AS2:AS', '#application_type'], ['AQ2:AQ', '#seeds_biological_category']]).each(function (i, el) {                
+               google.script.run.withSuccessHandler(options2).GetOptions(el[0], el[1])   
+               })              
+           }
+	</script>
+</body>
+
+</html>

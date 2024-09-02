@@ -1,0 +1,89 @@
+<style>
+  body {
+    font-family: Playfair Display;
+  }
+
+  h1 {
+    font-family: Playfair Display;
+    font-weight: 900;
+    font-size: 16px;
+    color: #4A4A4A;
+  }
+
+  p {
+    font-family: Open Sans;
+    color: #4A4A4A;
+    font-size: 14px;
+    text-align: justify;
+  }
+
+  li {
+    font-family: Open Sans;
+    color: #4A4A4A;
+    font-size: 14px;
+    text-align: justify;
+  }
+
+  strong {
+    font-family: Open Sans;
+    font-size: 14px;
+    color: #0D6797;
+    text-decoration: none;
+  }
+</style>
+
+<head>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&amp;subset=latin-ext" />
+  <link href="https://fonts.googleapis.com/css?family=Playfair+Display:900&display=swap&subset=latin-ext"
+    rel="stylesheet">
+</head>
+
+<body>
+  <p><br /><strong>Values Menu</strong> - tool to select multiple values for multiple attributes and insert them in a
+    cell with a separator that you choose;</p>
+  <h2>String Tools:</h2>
+  <ul>
+    <li><strong>Remove Diacritics</strong> - <em>range based</em> - Select a range wnd it will attempt to replace
+      diacritic characters with normalized ones; - <span style="color: #ff0000;">Warning</span>: <strong>slow</strong>
+      <ul>
+        <li>Use Catalog URL Converter as a faster replacement;</li>
+      </ul>
+    </li>
+    <li><strong>Remove in-string duplicates</strong> - <em>range based</em> - splits a string by "-" then removes all
+      duplicate strings found, joins them back by "-"; - <span style="color: #ff0000;">Warning</span>:
+      <strong>slow&nbsp;</strong></li>
+    <li><strong>Catalog URL Converter</strong> - <em>formula based</em> - replaces all given characters from a string
+      witht the key, value paris found in a character map, values being set in unicode. Almost entirely used for URL
+      normalization since it replaces diacritics and cyrillic/greek characters;.</li>
+    <li><strong>Change Case</strong> - <em>range based</em> - multiple options to change the values found in the cells
+      from the selected range to different character cases; - <span style="color: #ff0000;">Warning</span>:
+      <strong>slow</strong></li>
+  </ul>
+  <h2>Exporting: </h2>
+  <ul>
+    <li><strong>SaveAsCSV</strong> - <em>action based</em> - Saves all sheets within the Spreadsheet into a new folder in drive..</li>
+  </ul>
+  <h2>Other Utilities:</h2>
+  <ul>
+    <li><strong>Get sheet names</strong> - <em>formula based</em> - It generates a list of all the sheets found in the
+      current active spreadhseet;</li>
+    <li><strong>Extract sitemap URLs V1 </strong>- <em>formula based</em> - parses XML and extracts &lt;loc&gt; tags;
+    </li>
+    <li><strong>Extract sitemap URLs V2 </strong>- <em>formula based</em> - more advanced parsing with namespace given.
+      Provides same functionality as V1;</li>
+    <li><strong>HTTPResponse</strong> - <em>formula based</em> - return HTTP response of given URL;</li>
+    <li><strong>Generate Named Ranges from Mapping&nbsp;</strong>- <em>action based</em> - given a map of names, ranges
+      in Apps Scripts it automatically populates the Spreasheet with NamedRanges;</li>
+    <li><strong>Remove All Named Ranges</strong> - <em>action based</em> - useful to use paired with named range
+      generator;</li>
+    <li><strong>addAttributeValidation - </strong><em>single cell based</em> - if applied on a cell it grabs the value
+      from the right adjacent cell and pases it as a Values from Range Datavalidation.
+      <ul>
+        <li>requires that the adjcent cells' value is a valid NamedRange within the spreadsheet;</li>
+      </ul>
+    </li>
+    <li><strong>Set Permission -&nbsp;</strong><em>App Script use only</em> - grants a given e-mail address full
+      permissions across all sheets;</li>
+  </ul>
+  <input type="button" value="Understood!" onclick="google.script.host.close()" />
+</body>
